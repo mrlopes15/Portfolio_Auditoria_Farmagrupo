@@ -1,4 +1,4 @@
-# Portfolio de Auditoria Interna - Farmagrupo Nordeste SA
+# Portfólio de Auditoria Interna - Farmagrupo Nordeste SA
 
 > Empresa fictícia criada exclusivamente para fins de portfólio profissional.
 
