@@ -55,16 +55,16 @@ O banco foi modelado com três tabelas no PostgreSQL hospedado no Neon:
 
 * **`despesas`** — 200 registros de lançamentos com aprovação, forma de pagamento, filial e usuário
 * **`fiscal`** — 200 registros de documentos fiscais (NF-e e NFS-e) com tempestividade e validação
-* **`log\_auditoria`** — 421 registros vinculados aos 9 achados por `achado\_id`, com ciclo de vida completo (ABERTO → EM\_ANDAMENTO → ENCERRADO)
+* **`log_auditoria`** — 421 registros vinculados aos 9 achados por `achado\_id`, com ciclo de vida completo (ABERTO → EM\_ANDAMENTO → ENCERRADO)
 
 Uma decisão técnica relevante foi o SLA diferenciado por tabela:
 
 * **Despesas:** atraso superior a 10 dias — impacto no fechamento contábil
 * **Fiscal:** atraso superior a 5 dias — prazo menor pela necessidade de escrituração tempestiva e obrigações acessórias (SPED e EFD)
 
-\---
+---
 
-## 6\. Os 10 testes de auditoria
+## 6. Os 10 testes de auditoria
 
 Cada teste replica um critério de auditoria em SQL, referenciado a uma norma específica do IPPF 2024. A análise cobre 100% das transações — sem amostragem.
 
@@ -79,7 +79,7 @@ Cada teste replica um critério de auditoria em SQL, referenciado a uma norma es
 * **Teste 10b** — Notas fiscais sem validação prévia → **complementa o Achado 8**
 * **Teste 10c** — Concentração de volume fiscal em poucos fornecedores → **Achado 9**
 
-\---
+---
 
 ## 7\. Os 9 achados de auditoria
 
@@ -107,7 +107,8 @@ Dois workflows implementam a auditoria contínua na prática.
 
 ### WF01 - Monitor Diário de Auditoria
 
-Roda todo dia às 07h. Consulta os critérios dos achados no PostgreSQL e envia e-mail HTML com alertas por nível de risco, filial e usuário. Referência: **Norma 14.2 - Análises e Potenciais Constatações do Trabalho**.
+Roda todo dia às 07h. Consulta os critérios dos achados no PostgreSQL e envia e-mail HTML com alertas por nível de risco, filial e usuário. 
+Referência: **Norma 14.2 - Análises e Potenciais Constatações do Trabalho**.
 
 ![Monitor Diario p1](assets/email_monitor_diario_p1.png)
 
@@ -119,13 +120,14 @@ Roda todo dia às 07h. Consulta os critérios dos achados no PostgreSQL e envia 
 
 ### WF02 — Relatório Executivo Semanal
 
-Roda toda segunda-feira às 08h00. Consolida a posição atual do log_auditoria com novos achados, prazos críticos e volume financeiro monitorado. Referência: **Norma 15.2 - Confirmação da Implementação das Recomendações**.
+Roda toda segunda-feira às 08h00. Consolida a posição atual do log_auditoria com novos achados, prazos críticos e volume financeiro monitorado. 
+Referência: **Norma 15.2 - Confirmação da Implementação das Recomendações**.
 
 
 
-![Relatorio Semanal p1](assets/email_relatorio_semanal_p1.png)
+![Relatorio Semanal p1](assets/email_relatorio_Executivo_semanal_p1.png)
 
-![Relatorio Semanal p2](assets/email_relatorio_semanal_p2.png)
+![Relatorio Semanal p2](assets/email_relatorio_Executivo_semanal_p2.png)
 
 ---
 
