@@ -42,62 +42,62 @@ A IA foi a ferramenta de auxilio, trabalhando o meu aprendizado e o raciocínio.
 
 ## 4. Stack tecnológica
 
-* **PostgreSQL (Neon)** - banco de dados com 3 tabelas e 421 registros de auditoria em nuvem.
+* **PostgreSQL (Neon)** - Banco de dados com 3 tabelas e 421 registros de auditoria em nuvem.
 * **SQL (pgAdmin)** - 10 testes de auditoria com 100% de cobertura das transações.
 * **n8n Cloud** - 2 workflows de automação (monitor diário + relatório executivo semanal).
 * **Power BI Desktop** - dashboard executivo com 5 páginas e 15 medidas DAX documentadas.
 
-\---
+---
 
-## 5\. Estrutura do banco de dados
+## 5. Estrutura do banco de dados
 
 O banco foi modelado com três tabelas no PostgreSQL hospedado no Neon:
 
-* **`despesas`** — 200 registros de lançamentos com aprovação, forma de pagamento, filial e usuário
-* **`fiscal`** — 200 registros de documentos fiscais (NF-e e NFS-e) com tempestividade e validação
-* **`log_auditoria`** — 421 registros vinculados aos 9 achados por `achado\_id`, com ciclo de vida completo (ABERTO → EM\_ANDAMENTO → ENCERRADO)
+* **`despesas`** - 200 registros de lançamentos com aprovação, forma de pagamento, filial e usuário.
+* **`fiscal`** - 200 registros de documentos fiscais (NF-e e NFS-e) com tempestividade e validação.
+* **`log_auditoria`** - 421 registros vinculados aos achados por `achado_id`, com ciclo de vida completo (ABERTO → EM ANDAMENTO → ENCERRADO)
 
 Uma decisão técnica relevante foi o SLA diferenciado por tabela:
 
-* **Despesas:** atraso superior a 10 dias — impacto no fechamento contábil
-* **Fiscal:** atraso superior a 5 dias — prazo menor pela necessidade de escrituração tempestiva e obrigações acessórias (SPED e EFD)
+* **Despesas:** Atraso superior a 10 dias, impacto no fechamento contábil.
+* **Fiscal:** Atraso superior a 5 dias, prazo menor pela necessidade de escrituração tempestiva e obrigações acessórias (SPED e EFD).
 
 ---
 
 ## 6. Os 10 testes de auditoria
 
-Cada teste replica um critério de auditoria em SQL, referenciado a uma norma específica do IPPF 2024. A análise cobre 100% das transações — sem amostragem.
+Cada teste replica em SQL um critério de auditoria, referenciado a uma norma específica do IPPF 2024. A análise cobre 100% das transações, sem amostragem.
 
-* **Testes 1, 2 e 3** — Pagamentos sem aprovação: volume, percentual e impacto financeiro → **Achado 1**
-* **Teste 4** — Atraso no lançamento de despesas superior a 10 dias → **Achado 2**
-* **Teste 5** — Padrão suspeito: atrasos de exatamente 30 dias → **Achado 3**
-* **Teste 6** — Falha combinada: sem aprovação E atraso simultâneos → **Achado 4**
-* **Teste 7** — Segregação de função: TOD e TOE → **Achado 5**
-* **Teste 8** — Concentração por usuário e centro de custo → **Achado 6**
-* **Teste 9** — Risco por forma de pagamento (CHQ e DIN) → **Achado 7**
-* **Teste 10a** — Tempestividade fiscal: atraso superior a 5 dias → **Achado 8**
-* **Teste 10b** — Notas fiscais sem validação prévia → **complementa o Achado 8**
-* **Teste 10c** — Concentração de volume fiscal em poucos fornecedores → **Achado 9**
+* **Testes 1, 2 e 3** - Pagamentos sem aprovação: volume, percentual e impacto financeiro → **Achado 1**
+* **Teste 4** - Atraso no lançamento de despesas superior a 10 dias → **Achado 2**
+* **Teste 5** - Padrão suspeito: atrasos de exatamente 30 dias → **Achado 3**
+* **Teste 6** - Falha combinada: sem aprovação e atraso simultâneos → **Achado 4**
+* **Teste 7** - Segregação de função: TOD e TOE → **Achado 5**
+* **Teste 8** - Concentração por usuário e centro de custo → **Achado 6**
+* **Teste 9** - Risco por forma de pagamento (CHQ e DIN) → **Achado 7**
+* **Teste 10a** - Tempestividade fiscal: atraso superior a 5 dias → **Achado 8**
+* **Teste 10b** - Notas fiscais sem validação prévia → **complementa o Achado 8**
+* **Teste 10c** - Concentração de volume fiscal em poucos fornecedores → **Achado 9**
 
 ---
 
-## 7\. Os 9 achados de auditoria
+## 7. Os 9 achados de auditoria
 
 Todos os achados foram formalizados no padrão IPPF com Critério, Condição, Causa, Efeito e Recomendação, e incluídos no Relatório de Auditoria AI-2025-001.
 
 |#|Título|Risco|Prioridade|Condição|
 |-|-|-|-|-|
-|1|Falha no Controle de Autorização de Pagamentos|🔴 ALTO|CRÍTICA|101 transações — R$ 1.916.609,80|
+|1|Falha no Controle de Autorização de Pagamentos|🔴 ALTO|CRÍTICA|101 transações: R$ 1.916.609,80|
 |2|Falha de Tempestividade no Lançamento de Despesas|🔴 ALTO|CRÍTICA|82 registros com atraso > 10 dias|
-|3|Padrão Suspeito de Comportamento (30 dias exatos)|🔴 ALTO|CRÍTICA|32 registros — indício de adequação deliberada ao limite|
+|3|Padrão Suspeito de Comportamento (30 dias exatos)|🔴 ALTO|CRÍTICA|32 registros: Indício de adequação deliberada ao limite|
 |4|Falha Combinada de Controle e Processo|🔴 ALTO|CRÍTICA|43 transações com dupla falha — R$ 829.277,24|
-|5|Segregação de Função — TOE Ineficaz|🔴 ALTO|CRÍTICA|Analítico — TOD adequado / TOE ineficaz (mesmas transações do Achado 1)|
-|6|Distribuição Sistêmica por Usuário e CC|🔴 ALTO|ALTA|Analítico — falha sistêmica de processo — nenhuma combinação > 4% do total|
-|7|Uso de Meios de Pagamento com Baixa Rastreabilidade|🔴 ALTO|ALTA|40 lançamentos CHQ+DIN — R$ 663.763,38|
-|8|Falha no Processo Fiscal (atraso + sem validação)|🔴 ALTO|ALTA|86 com atraso — R$ 1.587.130,16 + 37 sem validação|
-|9|Concentração de Fornecedores — Risco Operacional|🟡 MÉDIO|NORMAL|Analítico — 5 fornecedores = 100% do volume fiscal|
+|5|Segregação de Função - TOE Ineficaz|🔴 ALTO|CRÍTICA|Analítico: TOD adequado / TOE ineficaz (mesmas transações do Achado 1)|
+|6|Distribuição Sistêmica por Usuário e CC|🔴 ALTO|ALTA|Analítico: Falha sistêmica de processo, nenhuma combinação > 4% do total|
+|7|Uso de Meios de Pagamento com Baixa Rastreabilidade|🔴 ALTO|ALTA|40 lançamentos CHQ+DIN:  R$ 663.763,38|
+|8|Falha no Processo Fiscal (atraso + sem validação)|🔴 ALTO|ALTA|86 com atraso: R$ 1.587.130,16 + 37 sem validação|
+|9|Concentração de Fornecedores — Risco Operacional|🟡 MÉDIO|NORMAL|Analítico: 5 fornecedores = 100% do volume fiscal|
 
-**Nota:** Os Achados 5 e 6 analisam os mesmos registros dos Achados 1 e 2 sob perspectivas diferentes — segregação de função e distribuição sistêmica. Para preservar a integridade do log e evitar dupla contagem, não possuem registros transacionais individuais no log\_auditoria.
+**Nota:** Os Achados 5 e 6 analisam os mesmos registros dos Achados 1 e 2 sob perspectivas diferentes, segregação de função e distribuição sistêmica. Para preservar a integridade do log e evitar dupla contagem, não possuem registros transacionais individuais no log_auditoria.
 
 ---
 
@@ -110,6 +110,7 @@ Dois workflows implementam a auditoria contínua na prática.
 Roda todo dia às 07h. Consulta os critérios dos achados no PostgreSQL e envia e-mail HTML com alertas por nível de risco, filial e usuário. 
 Referência: **Norma 14.2 - Análises e Potenciais Constatações do Trabalho**.
 
+
 ![Monitor Diario p1](assets/email_monitor_diario_p1.png)
 
 ![Monitor Diario p2](assets/email_monitor_diario_p2.png)
@@ -120,7 +121,7 @@ Referência: **Norma 14.2 - Análises e Potenciais Constatações do Trabalho**.
 
 ### WF02 — Relatório Executivo Semanal
 
-Roda toda segunda-feira às 08h00. Consolida a posição atual do log_auditoria com novos achados, prazos críticos e volume financeiro monitorado. 
+Roda toda segunda-feira às 08h. Consolida a posição atual do log_auditoria com novos achados, prazos críticos e volume financeiro monitorado. 
 Referência: **Norma 15.2 - Confirmação da Implementação das Recomendações**.
 
 
@@ -129,9 +130,10 @@ Referência: **Norma 15.2 - Confirmação da Implementação das Recomendações
 
 ![Relatorio Semanal p2](assets/email_relatorio_executivo_semanal_p2.png)
 
+
 ---
 
-## 9. Dashboard Power BI — Visão Geral
+## 9. Dashboard Power BI - Visão Geral
 
 Esta página oferece a visão executiva consolidada do portfólio de auditoria.
 
@@ -145,14 +147,14 @@ Esta página oferece a visão executiva consolidada do portfólio de auditoria.
 
 ![Visão Geral](assets/dashboard\_visao\_geral.png)
 
-\---
+---
 
-## 10\. Dashboard Power BI — Despesas
+## 10. Dashboard Power BI - Despesas
 
 Foco nos achados de controle de despesas (Achados 1, 2, 3, 4 e 7).
 
-* **Exposição sem aprovação — R$ 1.916.609,80 (Achado 1)**
-* **% Despesas sem aprovação — 54,12%**
+* **Exposição sem aprovação: R$ 1.916.609,80 (Achado 1)**
+* **% Despesas sem aprovação: 54,12%**
 * **Despesas por forma de pagamento**
 * **Despesas por centro de custo**
 * **Exposição sem aprovação por usuário**
@@ -163,7 +165,7 @@ Foco nos achados de controle de despesas (Achados 1, 2, 3, 4 e 7).
 
 ## 11. Dashboard Power BI — Fiscal
 
-Foco no Achado 8 — tempestividade e validação fiscal.
+Foco no Achado 8, tempestividade e validação fiscal.
 
 * **Tempestividade fiscal por filial (atraso > 5 dias) — R$ 1.587.130,16**
 * **Volume fiscal por tipo de documento (NF-e vs NFS-e)**
@@ -173,9 +175,9 @@ Foco no Achado 8 — tempestividade e validação fiscal.
 
 ---
 
-## 12. Dashboard Power BI — Fornecedores
+## 12. Dashboard Power BI - Fornecedores
 
-Foco no Achado 9 — concentração de volume fiscal.
+Foco no Achado 9, concentração de volume fiscal.
 
 * **Concentração de volume fiscal por fornecedor**
 * **Participação percentual por fornecedor**
@@ -183,11 +185,11 @@ Foco no Achado 9 — concentração de volume fiscal.
 
 Insight-chave: 5 fornecedores representam 100% do volume fiscal. A ruptura de qualquer um impacta diretamente a operação sem alternativa imediata.
 
-!\[Fornecedores](assets/dashboard\_fornecedores.png)
+![Fornecedores](assets/dashboard\_fornecedores.png)
 
-\---
+---
 
-## 13\. Dashboard Power BI — Follow-up (Norma 15.2)
+## 13. Dashboard Power BI — Follow-up (Norma 15.2)
 
 Esta página implementa o acompanhamento das recomendações exigido pela Norma 15.2 do IPPF.
 
@@ -199,11 +201,11 @@ Esta página implementa o acompanhamento das recomendações exigido pela Norma 
 
 O sistema responde em tempo real: quando o status é atualizado para ENCERRADO no banco, o indicador reflete automaticamente na próxima atualização.
 
-!\[Follow-up](assets/dashboard\_followup.png)
+![Follow-up](assets/dashboard\_followup.png)
 
-\---
+---
 
-## 14\. Principais insights do projeto
+## 14. Principais insights do projeto
 
 * **R$ 1,9M em pagamentos sem aprovação formal** — 58,7% de todas as transações acima de R$ 5k
 * **43 transações com dupla falha (sem aprovação + atraso)** — R$ 829.277,24 sem qualquer barreira de detecção
@@ -211,9 +213,9 @@ O sistema responde em tempo real: quando o status é atualizado para ENCERRADO n
 * **5 fornecedores concentram 100% do volume fiscal** — risco operacional sem alternativas homologadas
 * **Sistema de follow-up ativo** — 10 registros já encerrados demonstram o ciclo completo da Norma 15.2
 
-\---
+---
 
-## 15\. Estrutura do repositório
+## 15. Estrutura do repositório
 
 ```
 sql/
@@ -229,9 +231,9 @@ assets/
 README.md
 ```
 
-\---
+---
 
-## 16\. O que pretendo estudar e desenvolver a seguir
+## 16. O que pretendo estudar e desenvolver a seguir
 
 Este projeto me mostrou o quanto ainda tenho a aprender. Os próximos passos são evoluções que pretendo estudar conforme avanço na transição de carreira:
 
@@ -240,21 +242,21 @@ Este projeto me mostrou o quanto ainda tenho a aprender. Os próximos passos sã
 * **Auditoria de Supply Chain** — estudar como a auditoria se aplica ao processo de compras e fornecedores
 * **Python para análise de dados** — ampliar a capacidade analítica além do SQL
 
-\---
+---
 
-## 17\. Referências utilizadas
+## 17. Referências utilizadas
 
 * **IIA Global Internal Audit Standards 2024 (IPPF)** — base normativa de todo o projeto
 * **SQL Guia Prático** — Alice Zhao — referência de estudo para as queries
 * **Storytelling com Dados** — Cole Nussbaumer Knaflic — referência para o design do dashboard
 
-\---
+---
 
-## 18\. Autor
+## 18. Autor
 
 **Matheus Rodrigues Lopes**
 
-Graduado em Ciências Contábeis | Analista Fiscal/Tributário em transição para Auditoria Interna
+Graduado em Ciências Contábeis | Analista Fiscal/Tributário em direcionamento estruturado para Auditoria Interna
 
 * **LinkedIn:** [https://www.linkedin.com/in/matheuslopesr/](https://www.linkedin.com/in/matheuslopesr/)
 * **GitHub:** [https://github.com/mrlopes15](https://github.com/mrlopes15)
