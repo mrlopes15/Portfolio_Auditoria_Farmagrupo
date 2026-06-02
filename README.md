@@ -1,52 +1,51 @@
-# Portfolio de Auditoria Interna — Farmagrupo Nordeste SA
+# Portfolio de Auditoria Interna - Farmagrupo Nordeste SA
 
 > Empresa fictícia criada exclusivamente para fins de portfólio profissional.
 
-\---
+---
 
-## 1\. Contexto do projeto
+## 1. Contexto do projeto
 
-A Auditoria Interna moderna não pode depender apenas de revisões periódicas e amostragens. Em ambientes com alto volume de transações, falhas de controle se acumulam silenciosamente entre um ciclo e outro — e quando identificadas, o impacto já é significativo.
+A Auditoria Interna moderna não pode depender apenas de revisões periódicas e amostragens. Em ambientes com alto volume de transações, falhas de controle se acumulam silenciosamente entre um ciclo e outro e quando identificadas, o impacto já é significativo.
 
-Este projeto nasce da minha busca por ingressar na função de Auditoria Interna com uma contribuição real: trazer análise de dados como caminho para ampliar a cobertura, reduzir o tempo de detecção e estruturar o acompanhamento das recomendações de forma rastreável.
+Este projeto nasce da minha busca por ingressar na função de Auditoria Interna com uma contribuição real: Utilizar análise de dados como caminho para ampliar a cobertura, reduzir o tempo de detecção e estruturar o acompanhamento das recomendações de forma rastreável.
 
 A Farmagrupo Nordeste SA é uma empresa fictícia do setor farmacêutico com três unidades (Matriz, Filial CE01 e Filial CE02), criada para simular um ambiente realista de auditoria contínua.
 
-\---
+---
 
-## 2\. Objetivo do projeto
+## 2. Objetivo do projeto
 
-Construir um sistema de **auditoria contínua orientada a dados**, seguindo os **Global Internal Audit Standards 2024 (IPPF)** do IIA, cobrindo desde a modelagem do banco de dados até o dashboard executivo, com automação de alertas e relatórios.
+Construir um sistema de **auditoria contínua orientada a dados**, seguindo o **Global Internal Audit Standards 2024 (IPPF)** do IIA, cobrindo desde a modelagem do banco de dados até o dashboard executivo, com automação de alertas e relatórios.
 
 Os objetivos específicos foram:
 
 * **Modelar um banco de dados de auditoria com rastreabilidade completa por achado.**
 * **Desenvolver 10 testes de auditoria em SQL com 100% de cobertura das transações.**
-* **Formalizar 9 achados no padrão IPPF 2024** (Critério, Condição, Causa, Efeito, Recomendação).
-* **Automatizar o monitoramento via n8n** com alertas e relatório executivo semanal.
-* **Visualizar os resultados em dashboard executivo no Power BI** com 5 páginas e 15 medidas DAX.
+* **Formalizar 9 achados no padrão IPPF 2024** (Criterio, Condicao, Causa, Efeito, Recomendacao).
+* **Automatizar o monitoramento via n8n** com alertas e relatorio executivo semanal.
+* **Visualizar os resultados em dashboard executivo no Power BI** com 5 paginas e 15 medidas DAX.
 
-\---
+---
 
-## 3\. Sobre o uso de IA no projeto
+## 3. Sobre o uso de IA no projeto
 
 Usei o **Claude (Anthropic)** como ferramenta de aprendizado e orientação técnica ao longo de todo o desenvolvimento.
 
-A IA não construiu o projeto por mim. Ela me ensinou, me questionou quando eu errava e me fez entender o porquê de cada decisão antes de avançar. Cada query SQL foi digitada por mim. Cada medida DAX foi criada com entendimento do conceito. Cada achado foi defendido com meu próprio raciocínio.
+A IA não construiu o projeto por mim. Ela me auxiliou a entender o porquê de cada decisão antes de avançar. Cada query SQL foi digitada por mim. Cada medida DAX foi criada com entendimento do conceito. Cada achado foi defendido e trabalhado meu próprio raciocínio.
 
-Se eu não conseguia explicar o porquê, não avançava.
+Entendia para avançar.
 
-A IA foi a ferramenta. O aprendizado e o raciocínio são meus.
+A IA foi a ferramenta de auxilio, trabalhando o meu aprendizado e o raciocínio.
 
-\---
+---
 
-## 4\. Stack tecnológica
+## 4. Stack tecnológica
 
-* **PostgreSQL (Neon)** — banco de dados com 3 tabelas e 421 registros de auditoria em nuvem
-* **SQL (pgAdmin)** — 10 testes de auditoria com 100% de cobertura das transações
-* **n8n Cloud** — 2 workflows de automação (monitor diário + relatório executivo semanal)
-* **Power BI Desktop** — dashboard executivo com 5 páginas e 15 medidas DAX documentadas
-* **GitHub** — versionamento e portfólio
+* **PostgreSQL (Neon)** - banco de dados com 3 tabelas e 421 registros de auditoria em nuvem.
+* **SQL (pgAdmin)** - 10 testes de auditoria com 100% de cobertura das transações.
+* **n8n Cloud** - 2 workflows de automação (monitor diário + relatório executivo semanal).
+* **Power BI Desktop** - dashboard executivo com 5 páginas e 15 medidas DAX documentadas.
 
 \---
 
@@ -100,37 +99,37 @@ Todos os achados foram formalizados no padrão IPPF com Critério, Condição, C
 
 **Nota:** Os Achados 5 e 6 analisam os mesmos registros dos Achados 1 e 2 sob perspectivas diferentes — segregação de função e distribuição sistêmica. Para preservar a integridade do log e evitar dupla contagem, não possuem registros transacionais individuais no log\_auditoria.
 
-\---
+---
 
-## 8\. Automação com n8n
+## 8. Automação com n8n
 
 Dois workflows implementam a auditoria contínua na prática.
 
-### WF01 — Monitor Diário de Auditoria
+### WF01 - Monitor Diário de Auditoria
 
-Roda todo dia às 07h00. Consulta os critérios dos achados no PostgreSQL e envia e-mail HTML com alertas por nível de risco, filial e usuário. Referência: **Norma 14.2 — Análises e Potenciais Constatações do Trabalho**.
+Roda todo dia às 07h. Consulta os critérios dos achados no PostgreSQL e envia e-mail HTML com alertas por nível de risco, filial e usuário. Referência: **Norma 14.2 - Análises e Potenciais Constatações do Trabalho**.
 
-!\[Monitor Diário - Parte 1](assets/email\_monitor\_diario\_p1.png)
+![Monitor Diario p1](assets/email_monitor_diario_p1.png)
 
-!\[Monitor Diário - Parte 2](assets/email\_monitor\_diario\_p2.png)
+![Monitor Diario p2](assets/email_monitor_diario_p2.png)
 
-!\[Monitor Diário - Parte 3](assets/email\_monitor\_diario\_p3.png)
+![Monitor Diario p3](assets/email_monitor_diario_p3.png)
 
 
 
 ### WF02 — Relatório Executivo Semanal
 
-Roda toda segunda-feira às 08h00. Consolida a posição atual do log\_auditoria com novos achados, prazos críticos e volume financeiro monitorado. Referência: **Norma 15.2 — Confirmação da Implementação das Recomendações**.
+Roda toda segunda-feira às 08h00. Consolida a posição atual do log_auditoria com novos achados, prazos críticos e volume financeiro monitorado. Referência: **Norma 15.2 - Confirmação da Implementação das Recomendações**.
 
 
 
-!\[Relatório Executivo - Parte 1](assets/email\_relatorio\_semanal\_p1.png)
+![Relatorio Semanal p1](assets/email_relatorio_semanal_p1.png)
 
-!\[Relatório Executivo - Parte 2](assets/email\_relatorio\_semanal\_p2.png)
+![Relatorio Semanal p2](assets/email_relatorio_semanal_p2.png)
 
-\---
+---
 
-## 9\. Dashboard Power BI — Visão Geral
+## 9. Dashboard Power BI — Visão Geral
 
 Esta página oferece a visão executiva consolidada do portfólio de auditoria.
 
