@@ -1,0 +1,242 @@
+{
+  "name": "WF02 - Relatório Executivo Semanal",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -832,
+        0
+      ],
+      "id": "c6a0a84f-4542-4635-89c3-0f9a883bce2b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    achado_id,\n    tipo_risco,\n    nivel_risco,\n    filial,\n    usuario,\n    valor,\n    data_execucao\nFROM auditoria.log_auditoria\nWHERE data_execucao >= NOW() - INTERVAL '7 days'\n  AND status_tratamento = 'ABERTO'\nORDER BY achado_id, valor DESC\nLIMIT 10;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -384,
+        0
+      ],
+      "id": "b96c2dfc-8bab-42dc-953c-3f5c7a820442",
+      "name": "Novos Achados da Semana",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "x80KQPad8FgFDzCi",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    achado_id,\n    nivel_risco,\n    status_tratamento,\n    COUNT(*) AS total_registros,\n    SUM(valor) AS valor_total\nFROM auditoria.log_auditoria\nWHERE status_tratamento != 'ENCERRADO'\nGROUP BY achado_id, nivel_risco, status_tratamento\nORDER BY achado_id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -624,
+        0
+      ],
+      "id": "42882d53-9721-4897-8f0c-903d57914f9a",
+      "name": "Posição Atual dos Achados",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "x80KQPad8FgFDzCi",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    achado_id,\n    tipo_risco,\n    nivel_risco,\n    responsavel_acao,\n    data_limite_acao,\n    status_tratamento,\n    valor\nFROM auditoria.log_auditoria\nWHERE data_limite_acao BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'\n  AND status_tratamento != 'ENCERRADO'\nORDER BY data_limite_acao ASC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "3a55d45c-79af-43f3-8d7d-dfc4a1fd9d81",
+      "name": "Achados próximos do prazo",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "x80KQPad8FgFDzCi",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const posicao = $('Posição Atual dos Achados').all();\nconst novos = $('Novos Achados da Semana').all();\nconst prazo = $('Achados próximos do prazo').all().filter(function(i) {\n  return i.json.data_limite_acao !== undefined &&\n    i.json.data_limite_acao !== null &&\n    i.json.achado_id !== undefined;\n});\nconst valorUnico = $('Valor Total Único').first().json.valor_unico;\n\nconst agora = new Date();\nconst fusoFortaleza = new Date(agora.toLocaleString('en-US', { timeZone: 'America/Fortaleza' }));\nconst data = fusoFortaleza.toLocaleDateString('pt-BR');\n\nconst titulos = {\n  1: 'Pagamentos sem aprovacao formal',\n  2: 'Atraso no lancamento de despesas',\n  3: 'Padrao suspeito de comportamento',\n  4: 'Falha combinada - sem aprovacao e atraso',\n  7: 'Meios de pagamento de alto risco',\n  8: 'Falha no processo fiscal'\n};\n\nconst totalAbertos = posicao.reduce(function(sum, i) {\n  return sum + parseInt(i.json.total_registros || 0);\n}, 0);\n\nconst totalAlto = posicao.filter(function(i) {\n  return i.json.nivel_risco === 'ALTO';\n}).reduce(function(sum, i) {\n  return sum + parseInt(i.json.total_registros || 0);\n}, 0);\n\nlet tabelaPosicao = '';\nposicao.forEach(function(i) {\n  tabelaPosicao += '<tr>';\n  tabelaPosicao += '<td>' + i.json.achado_id + '</td>';\n  tabelaPosicao += '<td>' + (titulos[i.json.achado_id] || '-') + '</td>';\n  tabelaPosicao += '<td>' + i.json.nivel_risco + '</td>';\n  tabelaPosicao += '<td>' + i.json.total_registros + '</td>';\n  tabelaPosicao += '<td>R$ ' + parseFloat(i.json.valor_total || 0).toFixed(2) + '</td>';\n  tabelaPosicao += '<td>' + i.json.status_tratamento + '</td>';\n  tabelaPosicao += '</tr>';\n});\n\nconst novosAgrupados = {};\nnovos.forEach(function(i) {\n  const id = i.json.achado_id;\n  if (id === undefined || id === null) return;\n  if (!novosAgrupados[id]) {\n    novosAgrupados[id] = { count: 0, valor: 0 };\n  }\n  novosAgrupados[id].count++;\n  novosAgrupados[id].valor += parseFloat(i.json.valor || 0);\n});\n\nconst chavesNovos = Object.keys(novosAgrupados);\nlet tabelaNovos = '';\nif (chavesNovos.length > 0) {\n  chavesNovos.forEach(function(id) {\n    const d = novosAgrupados[id];\n    tabelaNovos += '<tr>';\n    tabelaNovos += '<td>' + id + '</td>';\n    tabelaNovos += '<td>' + (titulos[id] || '-') + '</td>';\n    tabelaNovos += '<td>' + d.count + '</td>';\n    tabelaNovos += '<td>R$ ' + d.valor.toFixed(2) + '</td>';\n    tabelaNovos += '</tr>';\n  });\n} else {\n  tabelaNovos = '<tr><td colspan=\"4\" style=\"text-align:center;color:#555;\">Nenhum novo achado na semana</td></tr>';\n}\n\nlet tabelaPrazo = '';\nif (prazo.length > 0) {\n  prazo.forEach(function(i) {\n    tabelaPrazo += '<tr>';\n    tabelaPrazo += '<td>' + i.json.achado_id + '</td>';\n    tabelaPrazo += '<td>' + (titulos[i.json.achado_id] || '-') + '</td>';\n    tabelaPrazo += '<td>' + (i.json.responsavel_acao || 'Nao definido') + '</td>';\n    tabelaPrazo += '<td>' + i.json.data_limite_acao + '</td>';\n    tabelaPrazo += '<td>' + i.json.status_tratamento + '</td>';\n    tabelaPrazo += '</tr>';\n  });\n} else {\n  tabelaPrazo = '<tr><td colspan=\"5\" style=\"text-align:center;color:#555;\">Nenhum achado com prazo nos proximos 7 dias</td></tr>';\n}\n\nconst valorFormatado = valorUnico ? parseFloat(valorUnico).toFixed(2) : '0.00';\n\nconst html = '<h2 style=\"color:#1a252f;\">Relatorio Executivo Semanal de Auditoria</h2>'\n  + '<p><strong>Farmagrupo Nordeste SA</strong> | Unidade de Auditoria Interna | ' + data + '</p>'\n  + '<hr>'\n\n  + '<h3 style=\"color:#1a252f;\">1. Resumo Executivo</h3>'\n  + '<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%\">'\n  + '<tr style=\"background:#1a252f;color:white;\"><td><strong>Indicador</strong></td><td><strong>Valor</strong></td></tr>'\n  + '<tr><td>Total de registros em aberto</td><td>' + totalAbertos + '</td></tr>'\n  + '<tr><td>Valor total exposto (sem dupla contagem)</td><td>R$ ' + valorFormatado + '</td></tr>'\n  + '<tr><td>Registros de risco ALTO</td><td style=\"color:#c0392b;font-weight:bold;\">' + totalAlto + '</td></tr>'\n  + '</table>'\n\n  + '<h3 style=\"color:#1a252f;\">2. Posicao Atual dos Achados</h3>'\n  + '<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%\">'\n  + '<tr style=\"background:#1a252f;color:white;\">'\n  + '<td><strong>#</strong></td>'\n  + '<td><strong>Achado</strong></td>'\n  + '<td><strong>Risco</strong></td>'\n  + '<td><strong>Registros</strong></td>'\n  + '<td><strong>Valor Exposto</strong></td>'\n  + '<td><strong>Status</strong></td>'\n  + '</tr>'\n  + tabelaPosicao\n  + '</table>'\n\n  + '<h3 style=\"color:#1a252f;\">3. Novos Achados da Semana</h3>'\n  + '<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%\">'\n  + '<tr style=\"background:#1a252f;color:white;\">'\n  + '<td><strong>#</strong></td>'\n  + '<td><strong>Achado</strong></td>'\n  + '<td><strong>Registros</strong></td>'\n  + '<td><strong>Valor</strong></td>'\n  + '</tr>'\n  + tabelaNovos\n  + '</table>'\n\n  + '<h3 style=\"color:#1a252f;\">4. Achados com Prazo nos Proximos 7 Dias</h3>'\n  + '<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%\">'\n  + '<tr style=\"background:#1a252f;color:white;\">'\n  + '<td><strong>#</strong></td>'\n  + '<td><strong>Achado</strong></td>'\n  + '<td><strong>Responsavel</strong></td>'\n  + '<td><strong>Prazo</strong></td>'\n  + '<td><strong>Status</strong></td>'\n  + '</tr>'\n  + tabelaPrazo\n  + '</table>'\n\n  + '<h3 style=\"color:#1a252f;\">5. Nota Metodologica</h3>'\n  + '<p style=\"font-size:13px;color:#555;\">'\n  + 'Os Achados 5 e 6 analisam os mesmos registros dos Achados 1 e 2 sob perspectivas diferentes '\n  + '(segregacao de funcao e distribuicao sistemica). O Achado 9 e de natureza analitica - '\n  + 'concentracao de fornecedores. Os tres nao possuem registros individuais no log_auditoria '\n  + 'para evitar dupla contagem. Estao documentados no Relatorio AI-2025-001 e no POA.'\n  + '</p>'\n\n  + '<hr>'\n  + '<p style=\"color:gray;font-size:12px;\">'\n  + 'Gerado automaticamente pelo sistema de Auditoria Continua - Farmagrupo Nordeste SA<br>'\n  + 'Referencia IPPF: Norma 15.2 - Confirmando a Implementacao das Recomendacoes<br>'\n  + 'Emitido toda segunda-feira as 08:00 | UAI - Unidade de Auditoria Interna'\n  + '</p>';\n\nconst subject = '[AUDITORIA] Relatorio Executivo Semanal | ' + data;\n\nreturn [{ json: { html: html, subject: subject } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        0
+      ],
+      "id": "c6b57b1f-f168-4b37-89c6-f8440625b9ed",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fromEmail": "auditoria.farmagrupo@gmail.com",
+        "toEmail": "auditoria.farmagrupo@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        512,
+        0
+      ],
+      "id": "a92b1d98-0c5b-43eb-ae24-15ade47e8d92",
+      "name": "Send an Email",
+      "webhookId": "2040d3db-fa1c-4f78-84b1-e099e5238e7f",
+      "credentials": {
+        "smtp": {
+          "id": "5k9RAXRGI96pw89U",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    SUM(valor_max) AS valor_unico\nFROM (\n    SELECT \n        nr_documento,\n        MAX(valor) AS valor_max\n    FROM auditoria.log_auditoria\n    WHERE status_tratamento != 'ENCERRADO'\n    GROUP BY nr_documento\n) AS dedup;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        48,
+        0
+      ],
+      "id": "56f92ee7-18e6-4b75-b108-c07fb6fac591",
+      "name": "Valor Total Único",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "x80KQPad8FgFDzCi",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Posição Atual dos Achados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Posição Atual dos Achados": {
+      "main": [
+        [
+          {
+            "node": "Novos Achados da Semana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Novos Achados da Semana": {
+      "main": [
+        [
+          {
+            "node": "Achados próximos do prazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Achados próximos do prazo": {
+      "main": [
+        [
+          {
+            "node": "Valor Total Único",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valor Total Único": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "3405f166-c1ef-43bf-a05f-6004a09ccebe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c3fb9a8236609fff8e67b93fc6090b4eacb985ef95a95b063be80f175ebefa8e"
+  },
+  "id": "8sbvyJ7Z861Hdapv",
+  "tags": []
+}
