@@ -127,7 +127,7 @@ Referência: **Norma 15.2 - Confirmação da Implementação das Recomendações
 
 ![Relatorio Semanal p1](assets/email_relatorio_Executivo_semanal_p1.png)
 
-![Relatorio Semanal p2](assets/email_relatorio_Executivo_semanal_p2.png)
+![Relatorio Semanal p2](assets/email_relatorio_executivo_semanal_p2.png)
 
 ---
 
@@ -143,7 +143,7 @@ Esta página oferece a visão executiva consolidada do portfólio de auditoria.
 * **Volume por usuário (deduplificado)**
 * **Distribuição dos achados por prioridade (CRÍTICA: 5 / ALTA: 3 / NORMAL: 1)**
 
-!\[Visão Geral](assets/dashboard\_visao\_geral.png)
+![Visão Geral](assets/dashboard\_visao\_geral.png)
 
 \---
 
@@ -157,11 +157,11 @@ Foco nos achados de controle de despesas (Achados 1, 2, 3, 4 e 7).
 * **Despesas por centro de custo**
 * **Exposição sem aprovação por usuário**
 
-!\[Despesas](assets/dashboard\_despesas.png)
+![Despesas](assets/dashboard\_despesas.png)
 
-\---
+---
 
-## 11\. Dashboard Power BI — Fiscal
+## 11. Dashboard Power BI — Fiscal
 
 Foco no Achado 8 — tempestividade e validação fiscal.
 
@@ -169,11 +169,11 @@ Foco no Achado 8 — tempestividade e validação fiscal.
 * **Volume fiscal por tipo de documento (NF-e vs NFS-e)**
 * **Notas sem validação prévia por fornecedor — R$ 776.673,17**
 
-!\[Fiscal](assets/dashboard\_fiscal.png)
+![Fiscal](assets/dashboard\_fiscal.png)
 
-\---
+---
 
-## 12\. Dashboard Power BI — Fornecedores
+## 12. Dashboard Power BI — Fornecedores
 
 Foco no Achado 9 — concentração de volume fiscal.
 
