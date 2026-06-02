@@ -87,15 +87,15 @@ Todos os achados foram formalizados no padrão IPPF com Critério, Condição, C
 
 |#|Título|Risco|Prioridade|Condição|
 |-|-|-|-|-|
-|1|Falha no Controle de Autorização de Pagamentos|🔴 ALTO|CRÍTICA|101 transações: R$ 1.916.609,80|
-|2|Falha de Tempestividade no Lançamento de Despesas|🔴 ALTO|CRÍTICA|82 registros com atraso > 10 dias|
-|3|Padrão Suspeito de Comportamento (30 dias exatos)|🔴 ALTO|CRÍTICA|32 registros: Indício de adequação deliberada ao limite|
-|4|Falha Combinada de Controle e Processo|🔴 ALTO|CRÍTICA|43 transações com dupla falha — R$ 829.277,24|
-|5|Segregação de Função - TOE Ineficaz|🔴 ALTO|CRÍTICA|Analítico: TOD adequado / TOE ineficaz (mesmas transações do Achado 1)|
-|6|Distribuição Sistêmica por Usuário e CC|🔴 ALTO|ALTA|Analítico: Falha sistêmica de processo, nenhuma combinação > 4% do total|
-|7|Uso de Meios de Pagamento com Baixa Rastreabilidade|🔴 ALTO|ALTA|40 lançamentos CHQ+DIN:  R$ 663.763,38|
-|8|Falha no Processo Fiscal (atraso + sem validação)|🔴 ALTO|ALTA|86 com atraso: R$ 1.587.130,16 + 37 sem validação|
-|9|Concentração de Fornecedores — Risco Operacional|🟡 MÉDIO|NORMAL|Analítico: 5 fornecedores = 100% do volume fiscal|
+|1|Falha no Controle de Autorização de Pagamentos|🔴  ALTO|CRÍTICA|101 transações: R$ 1.916.609,80|
+|2|Falha de Tempestividade no Lançamento de Despesas|🔴  ALTO|CRÍTICA|82 registros com atraso > 10 dias|
+|3|Padrão Suspeito de Comportamento (30 dias exatos)|🔴  ALTO|CRÍTICA|32 registros: Indício de adequação deliberada ao limite|
+|4|Falha Combinada de Controle e Processo|🔴  ALTO|CRÍTICA|43 transações com dupla falha — R$ 829.277,24|
+|5|Segregação de Função - TOE Ineficaz|🔴  ALTO|CRÍTICA|Analítico: TOD adequado / TOE ineficaz (mesmas transações do Achado 1)|
+|6|Distribuição Sistêmica por Usuário e CC|🔴  ALTO|ALTA|Analítico: Falha sistêmica de processo, nenhuma combinação > 4% do total|
+|7|Uso de Meios de Pagamento com Baixa Rastreabilidade|🔴  ALTO|ALTA|40 lançamentos CHQ+DIN:  R$ 663.763,38|
+|8|Falha no Processo Fiscal (atraso + sem validação)|🔴  ALTO|ALTA|86 com atraso: R$ 1.587.130,16 + 37 sem validação|
+|9|Concentração de Fornecedores — Risco Operacional|🟡  MÉDIO|NORMAL|Analítico: 5 fornecedores = 100% do volume fiscal|
 
 **Nota:** Os Achados 5 e 6 analisam os mesmos registros dos Achados 1 e 2 sob perspectivas diferentes, segregação de função e distribuição sistêmica. Para preservar a integridade do log e evitar dupla contagem, não possuem registros transacionais individuais no log_auditoria.
 
@@ -207,11 +207,11 @@ O sistema responde em tempo real: quando o status é atualizado para ENCERRADO n
 
 ## 14. Principais insights do projeto
 
-* **R$ 1,9M em pagamentos sem aprovação formal** — 58,7% de todas as transações acima de R$ 5k
-* **43 transações com dupla falha (sem aprovação + atraso)** — R$ 829.277,24 sem qualquer barreira de detecção
-* **32 registros com exatamente 30 dias de atraso** — padrão estatisticamente improvável para erro operacional
-* **5 fornecedores concentram 100% do volume fiscal** — risco operacional sem alternativas homologadas
-* **Sistema de follow-up ativo** — 10 registros já encerrados demonstram o ciclo completo da Norma 15.2
+* **R$ 1,9M em pagamentos sem aprovação formal**, 58,7% de todas as transações acima de R$ 5k.
+* **43 transações com dupla falha (sem aprovação + atraso)**, R$ 829.277,24 sem qualquer barreira de detecção.
+* **32 registros com exatamente 30 dias de atraso**, padrão improvável para erro operacional.
+* **5 fornecedores concentram 100% do volume fiscal**, risco operacional sem alternativas homologadas.
+* **Sistema de follow-up ativo**, 10 registros já encerrados demonstram o ciclo completo da Norma 15.2
 
 ---
 
@@ -221,34 +221,44 @@ O sistema responde em tempo real: quando o status é atualizado para ENCERRADO n
 sql/
     01\_queries\_tabelas.sql
     02\_queries\_testes\_auditoria.sql
+n8n/
+    wf01_monitor_diario.json
+    wf02_relatorio_semanal.json
 assets/
-    email\_monitor\_diario.png
-    dashboard\_visao\_geral.png
-    dashboard\_despesas.png
-    dashboard\_fiscal.png
-    dashboard\_fornecedores.png
-    dashboard\_followup.png
+    email_monitor_diario_p1.png
+    email_monitor_diario_p2.png
+    email_monitor_diario_p3.png
+    email_relatorio_Executivo_semanal_p1.png
+    email_relatorio_Executivo_semanal_p2.png
+    dashboard_visao_geral.png
+    dashboard_despesas.png
+    dashboard_fiscal.png
+    dashboard_fornecedores.png
+    dashboard_followup.png
 README.md
 ```
 
+> Os documentos formais do projeto (Relatório de Auditoria AI-2025-001 e Programa de Trabalho) estão disponíveis sob solicitação via LinkedIn.
+
+
 ---
 
-## 16. O que pretendo estudar e desenvolver a seguir
+## 16. O que pretendo estudar e desenvolver a seguir.
 
 Este projeto me mostrou o quanto ainda tenho a aprender. Os próximos passos são evoluções que pretendo estudar conforme avanço na transição de carreira:
 
-* **Aprofundar o estudo do IPPF 2024** — ainda estou nos primeiros domínios e quero entender cada norma com a mesma profundidade que apliquei neste projeto
-* **Demonstrações Financeiras** — cruzar os achados com DRE e Balanço para mostrar impacto no resultado
-* **Auditoria de Supply Chain** — estudar como a auditoria se aplica ao processo de compras e fornecedores
-* **Python para análise de dados** — ampliar a capacidade analítica além do SQL
+* **Aprofundar o estudo do IPPF 2024**, ainda estou nos primeiros domínios e quero entender cada norma com a mesma profundidade que apliquei neste projeto.
+* **Governança e GRC**, entender como auditoria interna se conecta com gestão de riscos corporativos e compliance, base para crescer dentro da função.
+* **Demonstrações Financeiras**, cruzar os achados com DRE e Balanço para mostrar impacto financeiro real, conectando auditoria com análise de negócio.
+
 
 ---
 
 ## 17. Referências utilizadas
 
-* **IIA Global Internal Audit Standards 2024 (IPPF)** — base normativa de todo o projeto
-* **SQL Guia Prático** — Alice Zhao — referência de estudo para as queries
-* **Storytelling com Dados** — Cole Nussbaumer Knaflic — referência para o design do dashboard
+* **IIA Global Internal Audit Standards 2024 (IPPF)**, base normativa de todo o projeto.
+* **SQL Guia Prático** - Alice Zhao, referência de estudo para as queries.
+* **Storytelling com Dados** - Cole Nussbaumer Knaflic, referência para o design do dashboard.
 
 ---
 
